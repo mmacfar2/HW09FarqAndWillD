@@ -13,7 +13,7 @@ public final class JHUgle {
     private JHUgle() {}
 
     public static void main(String[] args) throws IOException {
-        Map<String, ArrayList<String>> map = new BinarySearchTreeMap<>();
+        Map<String, ArrayList<String>> map = new HashMap<>();
         Deque<ArrayList<String>> stack = new ArrayDeque<ArrayList<String>>();
 
         Pattern pattern = Pattern.compile("\\s+");

@@ -7,9 +7,8 @@ public class HashMap<K, V> implements Map<K, V> {
         K key;
 	V data;
 	Node<K, V> next;
-	Node<K, V> prev;
 
-	public Node(K key, V data) {
+	Node(K key, V data) {
             this.key = key;
 	    this.data = data;
 	}
@@ -26,9 +25,10 @@ public class HashMap<K, V> implements Map<K, V> {
     private Node[] table;
     private int numKeys;
     private int tableSize;
-
+    private StringBuilder stringBuilder;
+    
     public HashMap() {
-        this.table = (Node[]) new Object[10];
+        this.table = new Node[10];
 	this.numKeys = 0;
 	this.tableSize = 10;
     }
@@ -38,10 +38,9 @@ public class HashMap<K, V> implements Map<K, V> {
         if (this.has(k)) {
             throw new IllegalArgumentException("key already in map.");
 	}
-	int index = k.hashCode() % this.tableSize;
+	int index = this.hash(k);
 	Node<K, V> toAdd = new Node<K, V>(k, v);
 	toAdd.next = table[index];
-	this.table[index].prev = toAdd;
 	this.table[index] = toAdd;
 	this.numKeys++;
 	if (((1.0*this.numKeys)/this.tableSize) >= 0.75) {
@@ -51,28 +50,38 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V remove(K k) throws IllegalArgumentException {
-    	int index = k.hashCode() % this.tableSize;
-	Node<K, V> head = this.table[index];
-	while (head != null) {
-            if (head.key.equals(k)) {
-                head.prev.next = head.next;
-		head.next.prev = head.prev;
-		V toReturn = head.data;
-		head = null;
-		this.numKeys--;
-		return toReturn;
+    	int index = this.hash(k);
+	if (this.table[index] != null) {
+	    Node<K, V> head = this.table[index];
+	    if (head.key.equals(k)) {
+		numKeys--;
+		V v = head.data;
+		this.table[index] = null;
+		return v;
+	    } else {
+		while (head.next != null) {
+		    if (head.next.key.equals(k)) {
+			numKeys--;
+		        V v = head.next.data;
+			head.next = head.next.next;
+			return v;
+		    }
+		    head = head.next;
+		}
+		throw new IllegalArgumentException();
 	    }
-	    head = head.next;
+	} else {
+	    throw new IllegalArgumentException();
 	}
-	throw new IllegalArgumentException();
     }
 
     @Override
     public void put(K k, V v) throws IllegalArgumentException {
-	int index = k.hashCode() % this.tableSize;
+	int index = this.hash(k);
 	Node<K, V> head = this.table[index];
 	while (head != null) {
             if (head.key.equals(k)) {
+		
                 head.data = v;
 		return;
 	    }
@@ -83,7 +92,7 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V get(K k) throws IllegalArgumentException {
-        int index = k.hashCode() % this.tableSize;
+        int index = this.hash(k);
 	Node<K, V> head = table[index];
 	while (head != null) {
             if (head.key.equals(k)) {
@@ -94,9 +103,24 @@ public class HashMap<K, V> implements Map<K, V> {
         throw new IllegalArgumentException();
     }
 
+    private int hash(K k) throws IllegalArgumentException {
+	if (k == null) {
+            throw new IllegalArgumentException();
+	}
+	int index = k.hashCode() % this.tableSize;
+	if (index < 0) {
+	    index += this.tableSize;
+	}
+	System.err.println("index: " + index);
+	return index;
+    }
+    
     @Override
     public boolean has(K k) {
-    	int index = k.hashCode() % this.tableSize;
+	if (k == null) {
+            return false;
+	}
+    	int index = this.hash(k);
 	Node<K, V> head = this.table[index];
 	while (head != null) {
             if (head.key.equals(k)) {
@@ -134,13 +158,38 @@ public class HashMap<K, V> implements Map<K, V> {
 	    Node<K, V> n = new Node<K, V>(key,data);
 	    nodes.add(n);
 	}
-        this.table = (Node[])new Object[this.tableSize * 2];
-	tableSize *= 2;
+        this.table = new Node[this.tableSize * 2];
+	this.tableSize *= 2;
 	this.numKeys = 0;
 	int numElems =  nodes.size();
 	for (int i = 0; i < numElems; i++) {
             this.insert(nodes.get(i).getKey(),
 			nodes.get(i).getData());
 	}
+    }
+
+    @Override
+    public String toString() {
+	this.stringBuilder = new StringBuilder();
+        this.stringBuilder.append("{");
+        int index = 0;
+	for (int i = 0; i< this.tableSize; i++) {
+	    Node cur = this.table[i];
+            while (cur != null) {
+                stringBuilder.append(cur.key.toString());
+		stringBuilder.append(": ");
+		stringBuilder.append(cur.data.toString());
+		stringBuilder.append("\n");
+		cur = cur.next;
+	    }
+	}
+
+        int length = this.stringBuilder.length();
+        if (length > 1) {
+            this.stringBuilder.setLength(length - 1);
+        }
+        this.stringBuilder.append("}");
+
+        return this.stringBuilder.toString();
     }
 }

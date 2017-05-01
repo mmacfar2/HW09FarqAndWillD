@@ -1,3 +1,26 @@
 William David & Matthew MacFarquahar - wdavid2 & mmacfar2
 Assignment #9 Data Structures
-hi
+
+HashMap.java:
+implementation of map which uses a hashtable to index items into an array.
+
+HashMapTest.java:
+test implementation of MapTestBase.java to test the HashMap
+
+JHUgle.java:
+a search engine which finds which urls contain the associated words. Uses post
+op inputs '&&' and '||'. uses the hash map implementation.
+
+Map.java:
+given interface for maps.
+
+MapTestBase.java:
+code to test maps.
+
+
+for the JHUgle we started out using a binary search tree to store the key arraylist combos. we then switched it to a hash map which has faster inserts and finds which is the main use for this program. at first when combining elements of the or and and we made our own code but then found that the arraylist class has
+a built in && called retain all. for or instead of using firstOut.size() and
+secondOut.size() we used size1 and size2 which we created before the loop.
+
+for the hash map, we made an initial table size of 10 and hashcoded the keys to find where they should go in the table. we used a chaining collision solution
+where we stored the data in nodes containing a key and data. we decided to rehash at 0.75 filled and we doubled the table size everytime we rehash.
